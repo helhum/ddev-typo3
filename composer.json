@@ -1,0 +1,26 @@
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://composer.typo3.org/"
+        }
+    ],
+    "name": "typo3/ddev-typo3-distribution",
+    "description": "Minimal TYPO3 Distribution for ddev",
+    "license": "GPL-2.0+",
+    "require": {
+        "helhum/typo3-secure-web": "^0.2",
+        "typo3/cms-core": "^8.7",
+        "typo3/cms-introduction": "^3.0",
+        "typo3-console/composer-auto-setup": "^0.3"
+    },
+    "require-dev": {
+        "helhum/dotenv-connector": "^2.0"
+    },
+    "extra": {
+        "typo3/cms": {
+          "root-dir": "private",
+          "web-dir": "public"
+        }
+    }
+}

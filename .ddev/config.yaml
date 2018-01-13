@@ -1,0 +1,19 @@
+APIVersion: "1"
+name: typo3
+type: php
+docroot: public
+php_version: "7.1"
+webimage: drud/nginx-php-fpm-local:v0.9.0
+dbimage: drud/mysql-local-57:v0.6.3
+dbaimage: drud/phpmyadmin:v0.2.0
+provider: default
+
+# Certain ddev commands can be extended to run tasks before or after the ddev
+# command is executed.
+# See https://ddev.readthedocs.io/en/latest/users/extending-commands/ for more
+# information on the commands that can be extended and the tasks you can define
+# for them.
+
+hooks:
+  post-start:
+  - exec: "composer install"

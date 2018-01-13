@@ -1,0 +1,97 @@
+version: '3'
+
+services:
+  db:
+    container_name: ddev-${DDEV_SITENAME}-db
+    image: $DDEV_DBIMAGE
+    volumes:
+      - "${DDEV_IMPORTDIR}:/db"
+      - "${DDEV_DATADIR}:/var/lib/mysql"
+    restart: always
+    ports:
+      - "3306"
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.platform: ddev
+      com.ddev.app-type: php
+      com.ddev.approot: $DDEV_APPROOT
+      com.ddev.app-url: $DDEV_URL
+    environment:
+      - DDEV_UID=$DDEV_UID
+      - DDEV_GID=$DDEV_GID
+  web:
+    container_name: ddev-${DDEV_SITENAME}-web
+    image: $DDEV_WEBIMAGE
+    volumes:
+      - "../:/var/www/html:cached"
+    restart: always
+    depends_on:
+      - db
+    links:
+      - db:db
+    ports:
+      - "80"
+      - "8025"
+    # This needed to be changed from default config to support different docroot and working dir
+    # working_dir: /var/www/html/${DDEV_DOCROOT}
+    working_dir: /var/www/html/
+    environment:
+      - DDEV_UID=$DDEV_UID
+      - DDEV_GID=$DDEV_GID
+      - DDEV_URL=$DDEV_URL
+      - DOCROOT=$DDEV_DOCROOT
+      - DDEV_PHP_VERSION=$DDEV_PHP_VERSION
+      - DEPLOY_NAME=local
+      - VIRTUAL_HOST=$DDEV_HOSTNAME
+      # HTTP_EXPOSE allows for ports accepting HTTP traffic to be accessible from <site>.ddev.local:<port>
+      # To expose a container port to a different host port, define the port as hostPort:containerPort
+      - HTTP_EXPOSE=80,8025
+      # You can optionally expose an HTTPS port option for any ports defined in HTTP_EXPOSE.
+      # To expose an HTTPS port, define the port as securePort:containerPort.
+      - HTTPS_EXPOSE=443:80
+
+      # Expose ddev database credentials and TYPO3 install instructions to environment
+      - TYPO3_INSTALL_DB_USER=db
+      - TYPO3_INSTALL_DB_PASSWORD=db
+      - TYPO3_INSTALL_DB_HOST=db
+      - TYPO3_INSTALL_DB_PORT=3306
+      - TYPO3_INSTALL_DB_UNIX_SOCKET=
+      - TYPO3_INSTALL_DB_USE_EXISTING=1
+      - TYPO3_INSTALL_DB_DBNAME=db
+      - TYPO3_INSTALL_ADMIN_USER=admin
+      - TYPO3_INSTALL_ADMIN_PASSWORD=password
+      - TYPO3_INSTALL_SITE_NAME=$DDEV_SITENAME (on DDEV)
+      - TYPO3_INSTALL_SITE_SETUP_TYPE=no
+
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.platform: ddev
+      com.ddev.app-type: php
+      com.ddev.approot: $DDEV_APPROOT
+      com.ddev.app-url: $DDEV_URL
+  dba:
+    container_name: ddev-${DDEV_SITENAME}-dba
+    image: $DDEV_DBAIMAGE
+    restart: always
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.platform: ddev
+      com.ddev.app-type: php
+      com.ddev.approot: $DDEV_APPROOT
+      com.ddev.app-url: $DDEV_URL
+    depends_on:
+      - db
+    links:
+      - db:db
+    ports:
+      - "80"
+    environment:
+      - PMA_USER=db
+      - PMA_PASSWORD=db
+      - VIRTUAL_HOST=$DDEV_HOSTNAME
+      # HTTP_EXPOSE allows for ports accepting HTTP traffic to be accessible from <site>.ddev.local:<port>
+      - HTTP_EXPOSE=8036
+networks:
+  default:
+    external:
+      name: ddev_default
