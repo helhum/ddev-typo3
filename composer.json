@@ -15,7 +15,6 @@
         "typo3-console/composer-auto-setup": "^0.3"
     },
     "require-dev": {
-        "helhum/dotenv-connector": "^2.0"
     },
     "extra": {
         "typo3/cms": {
